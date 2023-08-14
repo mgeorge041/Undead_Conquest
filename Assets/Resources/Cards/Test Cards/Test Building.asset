@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f04d87c2d8d52ee4eb60b7471690c9f1, type: 3}
+  m_Name: Test Building
+  m_EditorClassIdentifier: 
+  cardSprite: {fileID: 960444426843654763, guid: 0d0bba2d68aa71843b1a8033f117578d, type: 3}
+  cardName: Test Building
+  cardDesc: Test building.
+  <cardType>k__BackingField: 0
+  resourceType1: 3
+  resourceCost1: 1
+  resourceType2: 4
+  resourceCost2: 1
+  resourceType3: 5
+  resourceCost3: 0
+  health: 10
+  attack: 0
+  defense: 0
+  mana: 0
+  range: 0
+  domainRange: 2

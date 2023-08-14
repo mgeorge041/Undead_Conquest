@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebc114e6f7f906543bf6af27ce16d843, type: 3}
+  m_Name: Test Add Card Start Action
+  m_EditorClassIdentifier: 
+  <actionType>k__BackingField: 0
+  turnCooldown: 0
+  cardInfo: {fileID: 11400000, guid: 65122d018c7ae5946b7b8218f756777e, type: 2}
+  numCards: 1
