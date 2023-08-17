@@ -44,7 +44,7 @@ namespace MapActionPhaseStates
             {
                 CreateHexListEdgeLines(HexListType.Select, new List<Hex>() { piece.hex });
             }
-            itemManager.SetSelectedPiece(piece);
+            itemManager.pieceManager.SetSelectedPiece(piece);
         }
 
 
@@ -67,7 +67,7 @@ namespace MapActionPhaseStates
             }
 
 
-            if (itemManager.HasPiece(clickHex.piece) && clickHex.piece.pieceData.hasActions)
+            if (itemManager.pieceManager.HasPiece(clickHex.piece) && clickHex.piece.pieceData.hasActions)
             {
                 EndState(new StateStartInfo(StateType.Action, clickHex.piece));
             }

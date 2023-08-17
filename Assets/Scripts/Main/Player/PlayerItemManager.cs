@@ -12,19 +12,17 @@ public class PlayerItemManager
     // Card items
     public Deck deck { get; private set; } = new Deck();
     public Hand hand { get; private set; } = new Hand();
-    private PlayableCard selectedCard;
+    
     private Queue drawCardActionQueue = new Queue();
     private Queue<Tuple<Card, int, int, int>> drawCardQueue = new Queue<Tuple<Card, int, int, int>>();
     public Queue<Card> addCardQueue = new Queue<Card>();
     private Queue<Tuple<Card, int, int>> finishAddCardQueue = new Queue<Tuple<Card, int,int>>();
 
     // Resources
-    public PlayerResources resources { get; private set; } = new PlayerResources();
+    public PlayerResourceManager resourceManager { get; private set; } = new PlayerResourceManager();
 
-    // Map items
-    public List<Piece> pieces = new List<Piece>();
-    public List<Hex> domainHexes = new List<Hex>();
-    private Piece selectedPiece;
+    // Pieces
+    public PlayerPieceManager pieceManager { get; private set; } = new PlayerPieceManager();
 
     // Event manager
     public PlayerItemManagerEventManager eventManager { get; private set; } = new PlayerItemManagerEventManager();
@@ -44,7 +42,7 @@ public class PlayerItemManager
     // Subscribe to events
     private void SubscribeToEvents()
     {
-        hand.eventManager.onLeftClickCard.Subscribe(LeftClickCard);
+        hand.eventManager.onLeftClickCard.Subscribe(HandleLeftClickCard);
     }
     public void SubscribePlayerUIEvents(PlayerUI playerUI)
     {
@@ -58,30 +56,26 @@ public class PlayerItemManager
     {
         deck.Reset();
         hand.Reset();
-        resources.Reset();
-        pieces.Clear();
+        resourceManager.Reset();
     }
 
 
     // End turn
     public void EndTurn()
     {
-        foreach (Piece piece in pieces)
-        {
-            piece.EndTurn();
-        }
+        pieceManager.EndTurn();
     }
 
 
     // Update resources and UI
     public void AddResource(ResourceType resource, int amount)
     {
-        resources.AddResource(resource, amount);
+        resourceManager.AddResource(resource, amount);
         CheckPlayableCards();
     }
     public void ShowAddResourceUI(ResourceType resource)
     {
-        eventManager.onChangeResource.OnEvent(resource, resources.GetResource(resource));
+        eventManager.onChangeResource.OnEvent(resource, resourceManager.GetResource(resource));
     }
 
 
@@ -203,11 +197,11 @@ public class PlayerItemManager
             return;
 
         hand.PlayCard(card);
-        resources.PlayCard(card);
+        resourceManager.PlayCard(card);
         deck.AddCardToDiscard(card);
         card.gameObject.SetActive(false);
         CheckPlayableCards();
-        eventManager.onPlayCard.OnEvent(card, resources);
+        eventManager.onPlayCard.OnEvent(card, resourceManager);
     }
 
 
@@ -216,7 +210,7 @@ public class PlayerItemManager
     {
         foreach (Card card in hand.cards)
         {
-            if (resources.CanPlayCard(card))
+            if (resourceManager.CanPlayCard(card))
                 card.SetPlayable(true);
             else
                 card.SetPlayable(false);
@@ -225,89 +219,15 @@ public class PlayerItemManager
 
 
     // Card clicks
-    public void LeftClickCard(PlayableCard card)
+    public void HandleLeftClickCard(PlayableCard card)
     {
-        if (!resources.CanPlayCard(card))
+        if (!resourceManager.CanPlayCard(card))
         {
-            selectedCard = null;
             eventManager.onLeftClickCard.OnEvent(null);
         }
         else
         {
-            selectedCard = card;
             eventManager.onLeftClickCard.OnEvent(card);
-        }
-    }
-
-
-    // Get whether has piece
-    public bool HasPiece(Piece piece)
-    {
-        return pieces.Contains(piece);
-    }
-
-
-    // Add or remove piece
-    public void AddPiece(Piece piece)
-    {
-        if (piece == null)
-            throw new ArgumentNullException("Cannot add null piece.");
-
-        pieces.Add(piece);
-        eventManager.onAddPiece.OnEvent(piece);
-        if (piece.pieceType != PieceType.Building)
-            return;
-
-        UpdateDomainHexes((Building)piece);
-    }
-    public void RemovePiece(Piece piece)
-    {
-        if (piece == null)
-            throw new ArgumentNullException("Cannot remove null piece.");
-
-        pieces.Remove(piece);
-        eventManager.onRemovePiece.OnEvent(piece);
-        if (piece.pieceType != PieceType.Building)
-            return;
-
-        SetDomainHexes();
-    }
-
-
-    // Set selected piece
-    public void SetSelectedPiece(Piece piece)
-    {
-        selectedPiece = piece;
-        eventManager.onSetSelectedPiece.OnEvent(piece);
-    }
-
-
-    // Update player domain hexes
-    private void SetDomainHexes()
-    {
-        domainHexes.Clear();
-        foreach (Piece piece in pieces)
-        {
-            if (piece.pieceType != PieceType.Building)
-                continue;
-
-            Building building = (Building)piece;
-            UpdateDomainHexes(building);
-        }
-    }
-    private void UpdateDomainHexes(Building building)
-    {
-        if (building == null)
-            throw new ArgumentNullException("Building cannot be null when updating domain hexes.");
-
-        if (building.hex == null)
-            throw new ArgumentNullException("Building cannot have null hex when updating domain hexes.");
-
-        List<Hex> buildingDomainHexes = HexPathPattern.GetHexesInRange(building.hex, building.buildingData.domainRange);
-        foreach (Hex domainHex in buildingDomainHexes)
-        {
-            if (!domainHexes.Contains(domainHex))
-                domainHexes.Add(domainHex);
         }
     }
 }

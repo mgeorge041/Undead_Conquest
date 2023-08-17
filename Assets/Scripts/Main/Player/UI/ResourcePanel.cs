@@ -98,6 +98,19 @@ public class ResourcePanel : MonoBehaviour
     }
 
 
+    // Set multiple resources
+    public void SetResources(Dictionary<ResourceType, int> resources)
+    {
+        if (resources == null)
+            throw new System.ArgumentNullException("Cannot set resources for null dictionary.");
+
+        foreach (KeyValuePair<ResourceType, int> pair in resources)
+        {
+            SetResource(pair.Key, pair.Value);
+        }
+    }
+
+
     // Show resource highlight
     public void ShowResourceHighlight(ResourceType resource, Color highlightColor)
     {
@@ -108,7 +121,7 @@ public class ResourcePanel : MonoBehaviour
     // Highlight for given duration
     private IEnumerator ShowHighlightDuration(ResourceType resource, Color highlightColor)
     {
-        float duration = Mathf.PI / 2;
+        float duration = 1;
         Material iconMaterial = resourceIcons[resource].material;
         Material labelMaterial = resourceLabels[resource].fontMaterial;
         HighlightMaterial(iconMaterial, -1, highlightColor);

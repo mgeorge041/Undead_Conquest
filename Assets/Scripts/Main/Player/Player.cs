@@ -9,18 +9,19 @@ public class Player : MonoBehaviour
     public bool initialized { get; private set; }
 
     // Item manager
-    public PlayerItemManager itemManager { get; private set; } = new PlayerItemManager();
+    public PlayerStartResources startResources;
+    public PlayerStartPieces startPieces;
+    public PlayerItemManager itemManager { get; private set; }
+
+    // Turn phases
+    public TurnPhaseHandler turnPhaseHandler { get; private set; }
+    private Vector3 startActionPhaseCameraPosition;
 
     // UI
     public PlayerUI playerUI;
 
     // Input
-    public PlayerCamera playerCamera;
     public PlayerInputController inputController;
-    public TurnPhaseHandler turnPhaseHandler = new TurnPhaseHandler();
-
-    // Hexmap
-    public Hexmap hexmap;
 
 
     // Instantiate player
@@ -35,15 +36,22 @@ public class Player : MonoBehaviour
     // Initialize
     public void Initialize()
     {
+        // Item manager
+        itemManager = new PlayerItemManager();
+        if (startResources != null)
+            itemManager.resourceManager.AddResources(startResources.resources);
+
         // Input controller
-        SubscribeInputControllerEvents();
+        inputController.Initialize();
 
         // Turn phase handler
         turnPhaseHandler = new TurnPhaseHandler(itemManager);
-        
+        turnPhaseHandler.SubscribeInputControllerEvents(inputController);
+        SubscribeTurnPhaseHandlerEvents();
+
         // UI
         playerUI.Initialize();
-        playerUI.SubscribePlayerItemEvents(itemManager);
+        playerUI.SetItemManagerInfo(itemManager);
         playerUI.SubscribeTurnPhaseHandlerEvents(turnPhaseHandler);
         SubscribePlayerUIEvents();
 
@@ -51,31 +59,23 @@ public class Player : MonoBehaviour
         SubscribeItemManagerEvents();
         itemManager.SubscribePlayerUIEvents(playerUI);
 
-        // Hexmap
-        hexmap.Initialize();
-
         initialized = true;
     }
 
 
     // Subscribe to events
+    private void SubscribeTurnPhaseHandlerEvents()
+    {
+        turnPhaseHandler.eventManager.onSetNextPhase.Subscribe(HandleSetNextPhase);
+    }
     private void SubscribeItemManagerEvents()
     {
-        itemManager.eventManager.onFinishDrawingCards.Subscribe(FinishDrawingCards);
-        itemManager.eventManager.onAddPiece.Subscribe(AddPiece);
-        itemManager.eventManager.onRemovePiece.Subscribe(RemovePiece);
+        itemManager.pieceManager.eventManager.onAddPiece.Subscribe(AddPiece);
+        itemManager.pieceManager.eventManager.onRemovePiece.Subscribe(RemovePiece);
     }
     private void SubscribePlayerUIEvents()
     {
         playerUI.eventManager.onClickNextPhaseButton.Subscribe(ClickNextPhaseButton);
-    }
-    private void SubscribeInputControllerEvents()
-    {
-        inputController.eventManager.onLeftClick.Subscribe(LeftClick);
-        inputController.eventManager.onRightClick.Subscribe(RightClick);
-        inputController.eventManager.onHover.Subscribe(Hover);
-        inputController.eventManager.onPressKeyboardArrows.Subscribe(PressKeyboardArrows);
-        inputController.eventManager.onScroll.Subscribe(Scroll);
     }
 
 
@@ -87,71 +87,43 @@ public class Player : MonoBehaviour
     }
 
 
-    // Set hexmap data
+    // Set hexmap data and starting pieces
     public void SetHexmapData(HexmapData hexmapData)
     {
-        hexmap.SetHexmapData(hexmapData);
-        playerCamera.SetMapPattern(hexmapData.mapPattern);
-    }
-
-
-    // Finish drawing cards
-    private void FinishDrawingCards(Queue<Tuple<Card, int, int, int>> drawQueue)
-    {
-        if (turnPhaseHandler.currentPhase.phaseType != TurnPhaseType.Draw)
-            return;
-
-        turnPhaseHandler.StartNextPhase();
+        inputController.SetHexmapData(hexmapData);
+        if (startPieces != null)
+        {
+            foreach (KeyValuePair<PlayableCardInfo, Vector3Int> pair in startPieces.pieces)
+            {
+                Piece piece = Piece.CreatePiece(pair.Key);
+                hexmapData.AddPiece(piece, pair.Value);
+                itemManager.pieceManager.AddPiece(piece);
+            }
+        }
     }
 
 
     // Add piece
     private void AddPiece(Piece piece)
     {
-        playerCamera.SubscribePieceEvents(piece);
+        inputController.playerCamera.SubscribePieceEvents(piece);
     }
     private void RemovePiece(Piece piece)
     {
-        playerCamera.UnsubscribePieceEvents(piece);
+        inputController.playerCamera.UnsubscribePieceEvents(piece);
     }
 
 
-    // Clicks
-    public void LeftClick(Vector3 mousePosition)
+    // Handle setting next turn phase
+    private void HandleSetNextPhase(TurnPhaseType nextPhase)
     {
-        Vector3 worldPosition = playerCamera.cameraObject.ScreenToWorldPoint(mousePosition);
-        Hex clickHex = hexmap.GetHexAtWorldPosition(worldPosition);
-        turnPhaseHandler.LeftClick(clickHex);
-    }
-    public void RightClick(Vector3 mousePosition)
-    {
-        Vector3 worldPosition = playerCamera.cameraObject.ScreenToWorldPoint(mousePosition);
-        Hex clickHex = hexmap.GetHexAtWorldPosition(worldPosition);
-        turnPhaseHandler.RightClick(clickHex);
-    }
+        inputController.SetCurrentControllerSettings(turnPhaseHandler.GetPhaseControllerSettings(nextPhase));
 
-
-    // Hover
-    public void Hover(Vector3 mousePosition)
-    {
-        Vector3 worldPosition = playerCamera.cameraObject.ScreenToWorldPoint(mousePosition);
-        Hex hoverHex = hexmap.GetHexAtWorldPosition(worldPosition);
-        turnPhaseHandler.Hover(hoverHex);
-    }
-
-
-    // Press keyboard arrows
-    public void PressKeyboardArrows(float moveX, float moveY)
-    {
-        Vector3 newPosition = new Vector3(playerCamera.transform.position.x + moveX, playerCamera.transform.position.y + moveY);
-        playerCamera.MoveCamera(newPosition);
-    }
-
-
-    // Scroll mousewheel
-    public void Scroll(float moveZ)
-    {
-        playerCamera.ZoomCamera(moveZ);
+        // Set camera start location
+        if (nextPhase == TurnPhaseType.StartAction)
+            startActionPhaseCameraPosition = inputController.playerCamera.transform.position;
+        else if (nextPhase == TurnPhaseType.Draw)
+            inputController.playerCamera.SetPosition(startActionPhaseCameraPosition);
     }
 
 

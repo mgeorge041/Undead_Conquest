@@ -21,11 +21,25 @@ public class PieceActionDataHandler
     // Perform all actions in queue
     public void PerformAllQueuedActions()
     {
-        while (actionsQueue.Count > 0)
+        if (actionsQueue.Count > 0)
+            PerformNextQueuedAction(null);
+    }
+
+
+    // Perform next queued action
+    public void PerformNextQueuedAction(PieceActionData actionData)
+    {
+        if (actionData != null)
+            actionData.eventManager.onFinishPieceAction.Unsubscribe(PerformNextQueuedAction);
+
+        if (actionsQueue.Count <= 0)
         {
-            PieceActionData actionData = actionsQueue.Dequeue();
-            actionData.PerformAction();
-            performedActions.Push(actionData);
+            return;
         }
+
+        PieceActionData nextActionData = actionsQueue.Dequeue();
+        nextActionData.eventManager.onFinishPieceAction.Subscribe(PerformNextQueuedAction);
+        nextActionData.PerformAction();
+        performedActions.Push(nextActionData);
     }
 }

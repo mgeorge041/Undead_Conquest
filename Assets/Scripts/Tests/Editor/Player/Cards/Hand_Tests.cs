@@ -119,7 +119,7 @@ namespace PlayerTests.CardTests
             Card card = Card.CreateCard(CardPaths.testBoneResource);
             hand.AddCard(card);
             Vector3 startPosition = card.transform.position;
-            hand.CardStartHover(card);
+            hand.HandleCardStartHover(card);
 
             Vector3 endPosition = startPosition + new Vector3(0, 36);
             Assert.AreEqual(endPosition, card.transform.position);
@@ -131,8 +131,8 @@ namespace PlayerTests.CardTests
             Card card = Card.CreateCard(CardPaths.testBoneResource);
             hand.AddCard(card);
             Vector3 startPosition = card.transform.position;
-            hand.CardStartHover(card);
-            hand.CardEndHover(card);
+            hand.HandleCardStartHover(card);
+            hand.HandleCardEndHover(card);
             Assert.AreEqual(startPosition, card.transform.position);
         }
 
@@ -144,9 +144,10 @@ namespace PlayerTests.CardTests
             Vector3 startPosition = card2.transform.position;
             hand.AddCard(card);
             hand.AddCard(card2);
-            hand.CardStartHover(card);
-            hand.CardLeftClick(card);
-            hand.CardStartHover(card2);
+            hand.HandleCardStartHover(card);
+            hand.HandleCardLeftClick(card);
+            hand.HandleCardEndHover(card);
+            hand.HandleCardStartHover(card2);
             Assert.AreEqual(startPosition + hand.hoverOffset, card2.transform.position);
         }
 
@@ -159,10 +160,54 @@ namespace PlayerTests.CardTests
             Vector3 startPosition2 = card2.transform.position;
             hand.AddCard(card);
             hand.AddCard(card2);
-            hand.CardStartHover(card);
-            hand.CardLeftClick(card);
-            hand.CardStartHover(card2);
-            hand.CardLeftClick(card2);
+            hand.HandleCardStartHover(card);
+            hand.HandleCardLeftClick(card);
+            hand.HandleCardEndHover(card);
+            hand.HandleCardStartHover(card2);
+            hand.HandleCardLeftClick(card2);
+            Assert.AreEqual(card2, hand.selectedCard);
+            Assert.AreEqual(startPosition1, card.transform.position);
+            Assert.AreEqual(startPosition2 + hand.hoverOffset, card2.transform.position);
+        }
+
+        [Test]
+        public void ClearsHover_SelectNewCard_HoverOriginal()
+        {
+            Card card = Card.CreateCard(CardPaths.testUnit);
+            Card card2 = Card.CreateCard(CardPaths.testUnit);
+            Vector3 startPosition1 = card.transform.position;
+            Vector3 startPosition2 = card2.transform.position;
+            hand.AddCard(card);
+            hand.AddCard(card2);
+            hand.HandleCardStartHover(card);
+            hand.HandleCardLeftClick(card);
+            hand.HandleCardEndHover(card);
+            hand.HandleCardStartHover(card2);
+            hand.HandleCardLeftClick(card2);
+            hand.HandleCardEndHover(card2);
+            hand.HandleCardStartHover(card);
+            Assert.AreEqual(card2, hand.selectedCard);
+            Assert.AreEqual(startPosition1 + hand.hoverOffset, card.transform.position);
+            Assert.AreEqual(startPosition2 + hand.hoverOffset, card2.transform.position);
+        }
+
+        [Test]
+        public void ClearsHover_SelectNewCard_HoverThenExitOriginal()
+        {
+            Card card = Card.CreateCard(CardPaths.testUnit);
+            Card card2 = Card.CreateCard(CardPaths.testUnit);
+            Vector3 startPosition1 = card.transform.position;
+            Vector3 startPosition2 = card2.transform.position;
+            hand.AddCard(card);
+            hand.AddCard(card2);
+            hand.HandleCardStartHover(card);
+            hand.HandleCardLeftClick(card);
+            hand.HandleCardEndHover(card);
+            hand.HandleCardStartHover(card2);
+            hand.HandleCardLeftClick(card2);
+            hand.HandleCardEndHover(card2);
+            hand.HandleCardStartHover(card);
+            hand.HandleCardEndHover(card);
             Assert.AreEqual(card2, hand.selectedCard);
             Assert.AreEqual(startPosition1, card.transform.position);
             Assert.AreEqual(startPosition2 + hand.hoverOffset, card2.transform.position);

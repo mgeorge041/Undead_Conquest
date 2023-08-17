@@ -91,5 +91,26 @@ namespace PlayerTests.PlayerUITests
             panel.SetResource(ResourceType.Wood, amount);
             Assert.AreEqual(1, panel.GetResource(ResourceType.Wood));
         }
+
+
+        // Test setting multiple resources
+        [Test]
+        public void SetsMultipleResourcesNull_ThrowsError()
+        {
+            Assert.Throws<System.ArgumentNullException>(() => panel.SetResources(null));
+        }
+
+        [Test]
+        public void SetsMultipleResources()
+        {
+            Dictionary<ResourceType, int> resources = new Dictionary<ResourceType, int>()
+            {
+                { ResourceType.Bone, 1 },
+                { ResourceType.Stone, 1 },
+            };
+            panel.SetResources(resources);
+            Assert.AreEqual(1, panel.GetResource(ResourceType.Bone));
+            Assert.AreEqual(1, panel.GetResource(ResourceType.Stone));
+        }
     }
 }

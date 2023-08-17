@@ -20,6 +20,8 @@ namespace MapActionPhaseStates
         // Hover info
         private Hex currentHoverHex;
         public LineRenderer hoverLine { get; private set; }
+        public List<Hex> movePath { get; private set; } = new List<Hex>();
+        public List<SpriteRenderer> pathSegments { get; private set; } = new List<SpriteRenderer>();
 
 
         // Constructor
@@ -59,7 +61,7 @@ namespace MapActionPhaseStates
 
             SetAttackHexes();
             CreateHexListEdgeLines(HexListType.Attack, attackHexes);
-            itemManager.SetSelectedPiece(piece);
+            itemManager.pieceManager.SetSelectedPiece(piece);
         }
 
 
@@ -79,6 +81,7 @@ namespace MapActionPhaseStates
             attackHexes.Clear();
             ClearHexListEdgeLines();
             ClearHoverLine();
+            HideMovePathArrow();
         }
 
 
@@ -91,7 +94,7 @@ namespace MapActionPhaseStates
                 return;
             }
 
-            if (itemManager.HasPiece(clickHex.piece) && clickHex.piece.pieceData.hasActions)
+            if (itemManager.pieceManager.HasPiece(clickHex.piece) && clickHex.piece.pieceData.hasActions)
                 EndState(new StateStartInfo(StateType.Action, clickHex.piece));
             else
                 EndState(new StateStartInfo(StateType.Info, clickHex.piece));
@@ -109,14 +112,14 @@ namespace MapActionPhaseStates
             }
             else if (attackHexes.Contains(clickHex))
             {
-                CheckAttackMoveHex(clickHex);
+                AttackHex(clickHex);
             }
             else
             {
                 return;
             }
             eventManager.OnPerformPieceActions();
-            itemManager.SetSelectedPiece(piece);
+            itemManager.pieceManager.SetSelectedPiece(piece);
             EndState(new StateStartInfo(StateType.Neutral));
         }
 
@@ -129,11 +132,22 @@ namespace MapActionPhaseStates
             {
                 currentHoverHex = hoverHex;
                 ClearHoverLine();
+                HideMovePathArrow();
                 return;
             }
 
             currentHoverHex = hoverHex;
             ShowHoverLine();
+            if (moveHexes.Contains(hoverHex))
+            {
+                CreateMovePath();
+                ShowMovePathArrow();
+            }
+            if (attackHexes.Contains(hoverHex))
+            {
+                CheckAttackMoveHex(hoverHex);
+                ShowMovePathArrow();
+            }
         }
 
 
@@ -141,6 +155,13 @@ namespace MapActionPhaseStates
         private void SetMoveHexes()
         {
             moveHexes = HexActionCalculator.GetMoveHexes((Unit)piece);
+        }
+
+
+        // Create move path
+        private void CreateMovePath()
+        {
+            movePath = HexPathfinding.GetPath(piece.hex.pathNode, currentHoverHex.pathNode);
         }
 
 
@@ -158,8 +179,7 @@ namespace MapActionPhaseStates
             List<Hex> attackRangeHexes = HexActionCalculator.GetAttackRangeHexes(targetHex, piece.pieceData.range);
             if (attackRangeHexes.Contains(piece.hex))
             {
-                PieceActionData actionData = new PieceActionData(piece, PieceActionType.Attack, piece.hex, targetHex);
-                eventManager.OnCreatePieceActionData(actionData);
+                movePath.Clear();
             }
             else
             {
@@ -172,10 +192,24 @@ namespace MapActionPhaseStates
                 }
 
                 // Get closest hex
-                List<Hex> minPath = HexPathfinding.GetMinPath(piece.hex.pathNode, Hex.GetPathNodes(attackMoveHexes));
-                PieceActionData moveActionData = new PieceActionData(piece, PieceActionType.Move, piece.hex, minPath[minPath.Count - 1]);
-                PieceActionData attackActionData = new PieceActionData(piece, PieceActionType.Attack, minPath[minPath.Count - 1], targetHex);
+                movePath = HexPathfinding.GetMinPath(piece.hex.pathNode, Hex.GetPathNodes(attackMoveHexes));
+            }
+        }
+
+
+        // Attack hex
+        private void AttackHex(Hex targetHex)
+        {
+            if (movePath.Count > 0)
+            {
+                PieceActionData moveActionData = new PieceActionData(piece, PieceActionType.Move, piece.hex, movePath[movePath.Count - 1]);
+                PieceActionData attackActionData = new PieceActionData(piece, PieceActionType.Attack, movePath[movePath.Count - 1], targetHex);
                 eventManager.OnCreatePieceActionData(moveActionData);
+                eventManager.OnCreatePieceActionData(attackActionData);
+            }
+            else
+            {
+                PieceActionData attackActionData = new PieceActionData(piece, PieceActionType.Attack, piece.hex, targetHex);
                 eventManager.OnCreatePieceActionData(attackActionData);
             }
         }
@@ -206,6 +240,53 @@ namespace MapActionPhaseStates
         {
             if (hoverLine != null)
                 hoverLine.gameObject.SetActive(false);
+        }
+
+
+        // Show move path arrow
+        private void ShowMovePathArrow()
+        {
+            HideMovePathArrow();
+
+            // Create necessary path segments
+            int numNeededSegments = movePath.Count - pathSegments.Count;
+            for (int i = 0; i < numNeededSegments; i++)
+            {
+                SpriteRenderer pathSegment = PathArrow.CreatePathSegment();
+                pathSegments.Add(pathSegment);
+            }
+
+            // Set sprites for path
+            for (int i = 0; i < movePath.Count - 1; i++)
+            {
+                // Create path segment
+                Vector3Int directionIn = Direction.GetDirectionEnterHex(movePath[i], movePath[i + 1]);
+
+                // Next hex is target
+                Vector3Int directionOut;
+                if (i + 2 == movePath.Count)
+                {
+                    directionOut = Vector3Int.zero;
+                }
+                else
+                {
+                    directionOut = Direction.GetDirectionHexes(movePath[i + 1], movePath[i + 2]);
+                }
+
+                // Add path segment
+                SpriteRenderer pathSegment = pathSegments[i];
+                pathSegment.sprite = PathArrow.LoadPathSegmentSprite(directionIn, directionOut);
+                PathArrow.SetPathSegmentLocalScale(pathSegment, directionIn, directionOut);
+                pathSegment.transform.position = movePath[i + 1].pathNode.worldPosition;
+                pathSegment.gameObject.SetActive(true);
+            }
+        }
+        private void HideMovePathArrow()
+        {
+            foreach (SpriteRenderer pathSegment in pathSegments)
+            {
+                pathSegment.gameObject.SetActive(false);
+            }
         }
     }
 }

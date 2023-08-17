@@ -19,6 +19,18 @@ public class CardInfo : ScriptableObject
     [Multiline(4)] public string cardDesc;
     [field: SerializeField] public virtual CardType cardType { get; protected set; }
 
+    // Card types
+    public bool isPlayableType => isBuildingType || isUnitType;
+    public bool isBuildingType => cardType == CardType.Building;
+    public bool isUnitType => cardType == CardType.Unit;
+    public bool isResourceType => cardType == CardType.Resource;
+
+    // Card casts
+    public PlayableCardInfo playableCardInfo => isPlayableType ? (PlayableCardInfo)this : null;
+    public BuildingCardInfo buildingCardInfo => isBuildingType ? (BuildingCardInfo)this : null;
+    public UnitCardInfo unitCardInfo => isUnitType ? (UnitCardInfo)this : null;
+    public ResourceCardInfo resourceCardInfo => isResourceType ? (ResourceCardInfo)this : null;
+
 
     // Load card info
     public static CardInfo LoadCardInfo(string cardPath)

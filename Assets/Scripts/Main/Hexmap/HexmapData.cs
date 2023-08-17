@@ -46,7 +46,7 @@ public class HexmapData
     {
         foreach (Hex hex in hexes.Values)
         {
-            hex.eventManager.onAddPiece.Unsubscribe(HexAddPiece);
+            hex.eventManager.onAddPiece.Unsubscribe(HandleHexAddNewPiece);
         }
     }
 
@@ -71,7 +71,7 @@ public class HexmapData
             Hex hex = new Hex(hexCoords);
             hexes[hexCoords] = hex;
             tileHexCoords[hex.tileCoords] = hex.hexCoords;
-            hex.eventManager.onAddPiece.Subscribe(HexAddPiece);
+            hex.eventManager.onAddPiece.Subscribe(HandleHexAddNewPiece);
         }
 
         // Set hex neighbors
@@ -112,15 +112,6 @@ public class HexmapData
     }
 
 
-    // Create and add piece to map
-    public Piece CreateAndAddPiece(PlayableCardInfo cardInfo, Vector3Int hexCoords)
-    {
-        Piece piece = Piece.CreatePiece(cardInfo);
-        AddPiece(piece, hexCoords);
-        return piece;
-    }
-
-
     // Add piece to map
     public void AddPiece(Piece piece, Vector3Int hexCoords)
     {
@@ -142,9 +133,26 @@ public class HexmapData
 
 
     // Handle when a hex adds a new piece to the map
-    private void HexAddPiece(Piece piece)
+    private void HandleHexAddNewPiece(Piece piece)
     {
-        if (!pieces.Contains(piece))
-            pieces.Add(piece);
+        if (piece == null)
+            throw new System.ArgumentNullException("Cannot add null piece to hexmap data.");
+
+        if (pieces.Contains(piece))
+            return;
+
+        pieces.Add(piece);
+        piece.eventManager.onDeath.Subscribe(HandlePieceDeath);
+    }
+
+
+    // Handle when a piece dies
+    public void HandlePieceDeath(Piece piece)
+    {
+        if (piece == null || !pieces.Contains(piece))
+            throw new System.ArgumentException("Cannot handle death for null or unknown piece.");
+
+        RemovePiece(piece);
+        piece.eventManager.onDeath.Unsubscribe(HandlePieceDeath);
     }
 }

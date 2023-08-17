@@ -16,5 +16,9 @@ MonoBehaviour:
   cardName: Corpse
   cardDesc: Corpses used to feed the undead.
   <cardType>k__BackingField: 1
-  resourceType: 1
-  resourceAmount: 1
+  resourceType1: 1
+  resourceAmount1: 1
+  resourceType2: 5
+  resourceAmount2: 0
+  resourceType3: 5
+  resourceAmount3: 0

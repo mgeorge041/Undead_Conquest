@@ -100,7 +100,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             state.eventManager.SubscribeEndPhase(HandleEndStateEvent);
             Unit unit = Unit.CreateUnit(CardPaths.testUnit);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
             Hex hex = hexmapData.GetHexAtHexCoords(Vector3Int.zero);
             state.LeftClick(hex);
 
@@ -114,7 +114,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             state.eventManager.SubscribeEndPhase(HandleEndStateEvent);
             Unit unit = Unit.CreateUnit(CardPaths.testUnit);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
             unit.unitData.SetHasActions(false);
             Hex hex = hexmapData.GetHexAtHexCoords(Vector3Int.zero);
             state.LeftClick(hex);

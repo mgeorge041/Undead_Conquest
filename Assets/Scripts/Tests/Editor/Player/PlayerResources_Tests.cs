@@ -8,14 +8,14 @@ namespace PlayerTests
 {
     public class PlayerResources_Tests
     {
-        private PlayerResources resources;
+        private PlayerResourceManager resources;
 
 
         // Setup
         [SetUp]
         public void Setup()
         {
-            resources = new PlayerResources();
+            resources = new PlayerResourceManager();
         }
 
 
@@ -139,6 +139,26 @@ namespace PlayerTests
             int amount = -1;
             resources.AddResource(ResourceType.Bone, amount);
             Assert.AreEqual(0, resources.GetResource(ResourceType.Bone));
+        }
+
+        [Test]
+        public void AddsNullResourceDictionary_ThrowsError()
+        {
+            Assert.Throws<System.ArgumentNullException>(() => resources.AddResources(null));
+        }
+
+        [Test]
+        public void AddsResourceDictionary()
+        {
+            Dictionary<ResourceType, int> resourcesDict = new Dictionary<ResourceType, int>()
+            {
+                { ResourceType.Bone, 1 },
+                { ResourceType.Stone, 1 },
+            };
+            resources.AddResources(resourcesDict);
+            
+            Assert.AreEqual(1, resources.GetResource(ResourceType.Bone));
+            Assert.AreEqual(1, resources.GetResource(ResourceType.Stone));
         }
 
 

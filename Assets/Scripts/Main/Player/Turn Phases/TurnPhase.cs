@@ -29,6 +29,12 @@ public abstract class TurnPhase
         ClearPhase();
         eventManager.onEndPhase.OnEvent(nextPhaseType);
     }
+    public virtual void EndPhase(bool endOnly)
+    {
+        ClearPhase();
+        if (!endOnly)
+            eventManager.onEndPhase.OnEvent(nextPhaseType);
+    }
     public virtual void ClearPhase() { }
 
     // Player input

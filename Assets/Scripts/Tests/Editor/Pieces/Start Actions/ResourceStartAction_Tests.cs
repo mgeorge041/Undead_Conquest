@@ -45,8 +45,8 @@ namespace PieceTests.StartActionTests
         {
             startAction.SetTurnCooldown(1);
             startAction.PerformStartAction(null, itemManager);
-            Assert.AreEqual(0, itemManager.resources.GetResource(ResourceType.Bone));
-            Assert.AreEqual(0, itemManager.resources.GetResource(ResourceType.Stone));
+            Assert.AreEqual(0, itemManager.resourceManager.GetResource(ResourceType.Bone));
+            Assert.AreEqual(0, itemManager.resourceManager.GetResource(ResourceType.Stone));
             Assert.AreEqual(0, startAction.turnCooldown);
         }
     }

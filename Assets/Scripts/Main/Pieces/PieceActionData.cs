@@ -39,6 +39,9 @@ public class PieceActionData
     // Action info
     public PieceActionType actionType { get; private set; }
 
+    // Event manager
+    public PieceActionDataEventManager eventManager { get; private set; } = new PieceActionDataEventManager();
+
 
     // Constructor
     public PieceActionData() { }
@@ -65,12 +68,14 @@ public class PieceActionData
         if (actionPiece.isUnit)
         {
             startUnitData = new UnitData(actionUnit.unitData);
+            actionUnit.unitEventManager.onFinishMoveAnimation.Subscribe(HandleFinishAction);
         }
         else if (actionPiece.isBuilding)
         {
             startBuildingData = new BuildingData(actionBuilding.buildingData);
         }
 
+        actionUnit.eventManager.onFinishAttackAnimation.Subscribe(HandleFinishAction);
     }
 
 
@@ -180,5 +185,19 @@ public class PieceActionData
             targetUnit.unitData = new UnitData(startTargetUnitData);
         else if (targetPiece.isBuilding)
             targetBuilding.buildingData = new BuildingData(startTargetBuildingData);
+    }
+
+
+    // Handle finishing of action
+    private void HandleFinishAction(Piece piece)
+    {
+        if (piece.isUnit)
+        {
+            Unit unit = (Unit)piece;
+            unit.unitEventManager.onFinishMoveAnimation.Unsubscribe(HandleFinishAction);
+        }
+        piece.eventManager.onFinishAttackAnimation.Unsubscribe(HandleFinishAction);
+            
+        eventManager.onFinishPieceAction.OnEvent(this);
     }
 }

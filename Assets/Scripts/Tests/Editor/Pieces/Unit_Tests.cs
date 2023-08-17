@@ -17,6 +17,8 @@ namespace PieceTests
         private int numChangeSpeedEvents;
         private int changeSpeedEvent_CurrentSpeed;
         private int changeSpeedEvent_Speed;
+        private int numDeathEvents;
+        private Piece deathPiece;
 
 
         // Setup
@@ -32,6 +34,8 @@ namespace PieceTests
             numChangeSpeedEvents = 0;
             changeSpeedEvent_CurrentSpeed = 0;
             changeSpeedEvent_Speed = 0;
+            numDeathEvents = 0;
+            deathPiece = null;
         }
 
 
@@ -190,6 +194,25 @@ namespace PieceTests
             Assert.AreEqual(1, numChangeSpeedEvents);
             Assert.AreEqual(2, changeSpeedEvent_CurrentSpeed);
             Assert.AreEqual(3, changeSpeedEvent_Speed);
+        }
+
+
+        // Test death
+        private void HandlesUnitDeath(Piece piece)
+        {
+            numDeathEvents++;
+            deathPiece = piece;
+        }
+
+        [Test]
+        public void Dies()
+        {
+            unit.eventManager.onDeath.Subscribe(HandlesUnitDeath);
+            unit.Die();
+
+            Assert.AreEqual(1, numDeathEvents);
+            Assert.AreEqual(unit, deathPiece);
+            Assert.IsTrue(unit == null);
         }
     }
 }

@@ -14,9 +14,9 @@ public class PlayingCardsTestScene : MonoBehaviour
         // Set resources
         hexmap.Initialize();
         player.Initialize();
-        player.hexmap = hexmap;
-        player.itemManager.resources.AddResource(ResourceType.Bone, 10);
-        player.itemManager.resources.AddResource(ResourceType.Stone, 10);
+        player.inputController.hexmap = hexmap;
+        player.itemManager.resourceManager.AddResource(ResourceType.Bone, 10);
+        player.itemManager.resourceManager.AddResource(ResourceType.Stone, 10);
 
         // Add card to hand
         for (int i = 0; i < 5; i++)
@@ -30,7 +30,7 @@ public class PlayingCardsTestScene : MonoBehaviour
         // Create test building
         Building building = Piece.CreatePiece<Building>(CardPaths.testBuilding);
         hexmap.hexmapData.AddPiece(building, Vector3Int.zero);
-        player.itemManager.AddPiece(building);
+        player.itemManager.pieceManager.AddPiece(building);
 
         // Start phase
         player.turnPhaseHandler.SetNextPhase(TurnPhaseType.PlayCards);

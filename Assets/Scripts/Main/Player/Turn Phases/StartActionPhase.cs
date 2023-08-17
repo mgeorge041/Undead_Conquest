@@ -28,7 +28,7 @@ public class StartActionPhase : TurnPhase
     // Perform each piece start action
     private void SetStartActions()
     {
-        foreach (Piece piece in itemManager.pieces)
+        foreach (Piece piece in itemManager.pieceManager.pieces)
         {
             if (!piece.hasStartAction)
                 continue;

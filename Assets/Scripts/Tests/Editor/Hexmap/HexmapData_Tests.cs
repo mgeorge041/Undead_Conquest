@@ -148,5 +148,35 @@ namespace HexmapTests
             Assert.IsNull(hex.piece);
             Assert.AreEqual(0, hexmapData.pieces.Count);
         }
+
+
+        // Test handles adding new piece
+        [Test]
+        public void HandlesAddNewPiece()
+        {
+            Unit unit = Unit.CreateUnit(CardPaths.testUnit);
+            Hex hex = hexmapData.GetHexAtHexCoords(Vector3Int.zero);
+            hex.AddNewPiece(unit);
+
+            Assert.AreEqual(1, hexmapData.pieces.Count);
+            Assert.Contains(unit, hexmapData.pieces);
+            Assert.AreEqual(1, unit.eventManager.onDeath.count);
+        }
+
+
+        // Test handles piece death
+        [Test]
+        public void HandlesPieceDeath()
+        {
+            Unit unit = Unit.CreateUnit(CardPaths.testUnit);
+            Hex hex = hexmapData.GetHexAtHexCoords(Vector3Int.zero);
+            hex.AddNewPiece(unit);
+            unit.SetHex(hex);
+            unit.eventManager.onDeath.OnEvent(unit);
+
+            Assert.AreEqual(0, hexmapData.pieces.Count);
+            Assert.IsFalse(hexmapData.pieces.Contains(unit));
+            Assert.AreEqual(0, unit.eventManager.onDeath.count);
+        }
     }
 }

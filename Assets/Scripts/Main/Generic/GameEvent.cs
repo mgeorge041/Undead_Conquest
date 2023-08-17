@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class GameEvent
 {
+    public int count => onEvent != null ? onEvent.GetInvocationList().Length : 0;
     private event Action onEvent;
     public void OnEvent() => onEvent?.Invoke();
     public void Subscribe(Action action) => onEvent += action;
@@ -15,6 +16,7 @@ public class GameEvent
 
 public class GameEvent<T>
 {
+    public int count => onEvent != null ? onEvent.GetInvocationList().Length : 0;
     private event Action<T> onEvent;
     public void OnEvent(T value) => onEvent?.Invoke(value);
     public void Subscribe(Action<T> action) => onEvent += action;
@@ -24,6 +26,7 @@ public class GameEvent<T>
 
 public class GameEvent<T, T2>
 {
+    public int count => onEvent != null ? onEvent.GetInvocationList().Length : 0;
     private event Action<T, T2> onEvent;
     public void OnEvent(T value, T2 value2) => onEvent?.Invoke(value, value2);
     public void Subscribe(Action<T, T2> action) => onEvent += action;

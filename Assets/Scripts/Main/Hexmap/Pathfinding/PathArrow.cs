@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 namespace Pathfinding
 {
@@ -48,18 +49,99 @@ namespace Pathfinding
         };
 
 
+        // Create path segment object
+        public static SpriteRenderer CreatePathSegment()
+        {
+            SpriteRenderer pathSegment = Object.Instantiate(Resources.Load<SpriteRenderer>("Prefabs/Hexmap/Move Path Segment"));
+            return pathSegment;
+        }
+
+
         // Load path arrow sprite
         private static Sprite LoadPathSegmentSprite(string segmentName)
         {
-            Sprite[] sprites = Resources.LoadAll<Sprite>("Map/Tiles/Path Arrows");
-            foreach (Sprite sprite in sprites)
+            Object[] sprites = AssetDatabase.LoadAllAssetsAtPath("Assets/Art/Hexmap/Path Arrows.png");
+            foreach (Object obj in sprites)
             {
+                if (obj.GetType() != typeof(Sprite))
+                    continue;
+
+                Sprite sprite = (Sprite)obj;
+
                 if (sprite.name == segmentName)
                 {
                     return sprite;
                 }
             }
             return null;
+        }
+
+
+        // Load path segment sprite from direction
+        public static Sprite LoadPathSegmentSprite(Vector3Int directionIn, Vector3Int directionOut)
+        {
+            Vector3Int sum = directionIn + directionOut;
+            if (directionOut != Vector3Int.zero)
+            {
+                // Straight through
+                if (sum == Vector3Int.zero)
+                {
+                    if (directionIn == Direction.U || directionIn == Direction.D)
+                    {
+                        return LoadPathSegmentSprite(pathSprites[sum]);
+                    }
+                    else if (directionIn == Direction.UR || directionIn == Direction.DL)
+                    {
+                        return LoadPathSegmentSprite(pathSprites[Vector3Int.one]);
+                    }
+                    else
+                    {
+                        return LoadPathSegmentSprite(pathSprites[Vector3Int.one]);
+                    }
+                }
+                else
+                {
+                    return LoadPathSegmentSprite(pathSprites[sum]);
+                }
+            }
+            else
+            {
+                return LoadPathSegmentSprite(arrowSprites[directionIn]);
+            }
+        }
+
+
+        // Set scale for sprite
+        public static void SetPathSegmentLocalScale(SpriteRenderer renderer, Vector3Int directionIn, Vector3Int directionOut)
+        {
+            Vector3Int sum = directionIn + directionOut;
+            if (directionOut != Vector3Int.zero)
+            {
+                // Straight through
+                if (sum == Vector3Int.zero)
+                {
+                    if (directionIn == Direction.U || directionIn == Direction.D)
+                    {
+                        renderer.transform.localScale = pathScales[sum];
+                    }
+                    else if (directionIn == Direction.UR || directionIn == Direction.DL)
+                    {
+                        renderer.transform.localScale = pathScales[sum];
+                    }
+                    else
+                    {
+                        renderer.transform.localScale = pathScales[Direction.DR];
+                    }
+                }
+                else
+                {
+                    renderer.transform.localScale = pathScales[sum];
+                }
+            }
+            else
+            {
+                renderer.transform.localScale = arrowScales[directionIn];
+            }
         }
 
 

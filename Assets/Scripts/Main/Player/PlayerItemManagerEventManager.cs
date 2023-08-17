@@ -14,9 +14,6 @@ public class PlayerItemManagerEventManager
         onPlayCard.Clear();
         onFinishAddingCards.Clear();
         onFinishAnimatingAddCards.Clear();
-        onAddPiece.Clear();
-        onRemovePiece.Clear();
-        onSetSelectedPiece.Clear();
     }
 
 
@@ -28,14 +25,9 @@ public class PlayerItemManagerEventManager
     public GameEvent onFinishAnimatingDrawCards { get; private set; } = new GameEvent();
 
     // Playing cards
-    public GameEvent<PlayableCard, PlayerResources> onPlayCard { get; private set; } = new GameEvent<PlayableCard, PlayerResources>();
+    public GameEvent<PlayableCard, PlayerResourceManager> onPlayCard { get; private set; } = new GameEvent<PlayableCard, PlayerResourceManager>();
 
     // Adding cards to deck
     public GameEvent<Queue<Tuple<Card, int, int>>> onFinishAddingCards { get; private set; } = new GameEvent<Queue<Tuple<Card, int, int>>>();
     public GameEvent onFinishAnimatingAddCards { get; private set; } = new GameEvent();
-
-    // Handling pieces
-    public GameEvent<Piece> onAddPiece { get; private set; } = new GameEvent<Piece>();
-    public GameEvent<Piece> onRemovePiece { get; private set; } = new GameEvent<Piece>();
-    public GameEvent<Piece> onSetSelectedPiece { get; private set; } = new GameEvent<Piece>();
 }

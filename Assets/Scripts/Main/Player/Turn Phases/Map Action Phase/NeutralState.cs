@@ -23,7 +23,7 @@ namespace MapActionPhaseStates
             if (clickHex == null || !clickHex.hasPiece)
                 return;
 
-            if (itemManager.HasPiece(clickHex.piece) && clickHex.piece.pieceData.hasActions)
+            if (itemManager.pieceManager.HasPiece(clickHex.piece) && clickHex.piece.pieceData.hasActions)
             {
                 EndState(new StateStartInfo(StateType.Action, clickHex.piece));
             }

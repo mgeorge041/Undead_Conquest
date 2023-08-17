@@ -91,6 +91,14 @@ public abstract class PieceAnimator : MonoBehaviour
             yield return null;
         }
         piece.transform.position = startPosition;
+        FinishAttackAnimation();
+    }
+
+
+    // Finish attack animation
+    public void FinishAttackAnimation()
+    {
+        piece.eventManager.onFinishAttackAnimation.OnEvent(piece);
     }
 
 

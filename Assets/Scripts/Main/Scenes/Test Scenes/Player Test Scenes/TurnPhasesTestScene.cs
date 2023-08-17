@@ -20,7 +20,7 @@ public class TurnPhasesTestScene : MonoBehaviour
         // Set main base
         Building building = Building.CreateBuilding(CardPaths.mainBase);
         hexmapData.AddPiece(building, Vector3Int.zero);
-        player.itemManager.AddPiece(building);
+        player.itemManager.pieceManager.AddPiece(building);
         player.SetHexmapData(hexmapData);
 
         // Add card to hand
@@ -65,6 +65,7 @@ public class TurnPhasesTestScene : MonoBehaviour
     // Have player start turn
     public void StartPlayerTurn()
     {
+        player.turnPhaseHandler.currentPhase.EndPhase(true);
         player.turnPhaseHandler.SetNextPhase(TurnPhaseType.EndTurn);
         player.turnPhaseHandler.StartNextPhase();
     }

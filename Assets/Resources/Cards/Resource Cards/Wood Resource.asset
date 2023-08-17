@@ -16,5 +16,9 @@ MonoBehaviour:
   cardName: Wood
   cardDesc: Wood used to construct buildings.
   <cardType>k__BackingField: 1
-  resourceType: 4
-  resourceAmount: 1
+  resourceType1: 4
+  resourceAmount1: 1
+  resourceType2: 5
+  resourceAmount2: 0
+  resourceType3: 5
+  resourceAmount3: 0

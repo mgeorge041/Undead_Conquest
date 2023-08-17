@@ -73,7 +73,7 @@ public class Hex
 
 
     // Add piece to hex that is new to the map
-    public void AddPiece(Piece piece)
+    public void AddNewPiece(Piece piece)
     {
         SetPiece(piece);
         eventManager.onAddPiece.OnEvent(piece);
@@ -84,9 +84,19 @@ public class Hex
     public void SetPiece(Piece piece)
     {
         this.piece = piece;
+        eventManager.onSetPiece.OnEvent(piece);
     }
     public void ClearPiece()
     {
         piece = null;
+        eventManager.onSetPiece.OnEvent(piece);
+    }
+
+
+    // Set hex tile
+    public void SetTile(Tile tile)
+    {
+        this.tile = tile;
+        eventManager.onSetTile.OnEvent(this);
     }
 }

@@ -36,7 +36,8 @@ public class Hexmap : MonoBehaviour
         UpdateMapPattern();
         foreach (Hex hex in hexmapData.hexes.Values)
         {
-            hexagonMap.SetTile(hex.tileCoords, hexagon);
+            PaintTile(hex.tileCoords, hexagon);
+            SubscribeHexEvents(hex);
         }
         initialized = true;
     }
@@ -60,11 +61,39 @@ public class Hexmap : MonoBehaviour
     // Set hexmap data
     public void SetHexmapData(HexmapData hexmapData)
     {
+        // Unsubscribe from previous hex events
+        if (this.hexmapData != null)
+        {
+            foreach (Hex hex in this.hexmapData.hexes.Values)
+            {
+                UnsubscribeHexEvents(hex);
+            }
+        }
+
+        // Set new hex tiles
         this.hexmapData = hexmapData;
         foreach (Hex hex in hexmapData.hexes.Values)
         {
-            hexagonMap.SetTile(hex.tileCoords, hexagon);
+            PaintTile(hex.tileCoords, hexagon);
+            SubscribeHexEvents(hex);
         }
+    }
+
+
+    // Subscribe to hex events
+    private void SubscribeHexEvents(Hex hex)
+    {
+        if (hex == null)
+            throw new System.ArgumentNullException("Cannot subscribe to null hex events.");
+
+        hex.eventManager.onSetTile.Subscribe(HandleHexSetTile);
+    }
+    private void UnsubscribeHexEvents(Hex hex)
+    {
+        if (hex == null)
+            return;
+
+        hex.eventManager.onSetTile.Unsubscribe(HandleHexSetTile);
     }
 
 
@@ -109,6 +138,21 @@ public class Hexmap : MonoBehaviour
     public Vector3 TileToWorldCoords(Vector3Int tileCoords)
     {
         return tileGrid.CellToWorld(tileCoords);
+    }
+
+
+    // Paint tile
+    public void PaintTile(Vector3Int tileCoords, TileBase tile)
+    {
+        hexagonMap.SetTile(tileCoords, tile);
+        hexagonMap.RefreshTile(tileCoords);
+    }
+
+
+    // Handle when a hex sets its tile
+    public void HandleHexSetTile(Hex hex)
+    {
+        PaintTile(hex.tileCoords, hex.tile);
     }
 
 

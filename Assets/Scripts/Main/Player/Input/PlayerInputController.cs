@@ -5,89 +5,117 @@ using UnityEngine.EventSystems;
 
 public class PlayerInputController : MonoBehaviour
 {
+    // Initialization
+    public bool initialized { get; private set; }
+
+    // Input controller settings
+    public PhaseInputControllerSettings currentControllerSettings { get; private set; }
+    public PlayerCamera playerCamera;
+
+    // Hexmap
+    public Hexmap hexmap;
+
+    // Event manager
     public PlayerInputControllerEventManager eventManager { get; private set; } = new PlayerInputControllerEventManager();
+    public PhaseInputControllerEventManager settingsEventManager => currentControllerSettings.eventManager;
+
+
+    // Instantiate
+    public static PlayerInputController CreatePlayerInputController()
+    {
+        PlayerInputController inputController = Instantiate(Resources.Load<PlayerInputController>("Prefabs/Player/Player Input Controller"));
+        inputController.Initialize();
+        return inputController;
+    }
+
+
+    // Initialize
+    public void Initialize()
+    {
+        SetCurrentControllerSettings(new EmptyPhaseControllerSettings());
+        hexmap.Initialize();
+        playerCamera.Initialize();
+        initialized = true;
+    }
+
+
+    // Set current input controller settings
+    public void SetCurrentControllerSettings(PhaseInputControllerSettings controllerSettings)
+    {
+        if (controllerSettings == null)
+            throw new System.ArgumentNullException("Cannot set input controller settings to null.");
+
+        UnsubscribeInputControllerEvents();
+        currentControllerSettings = controllerSettings;
+        SubscribeInputControllerEvents();
+    }
+
+
+    // Subscribe to input controller events
+    private void SubscribeInputControllerEvents()
+    {
+        settingsEventManager.onLeftClick.Subscribe(LeftClick);
+        settingsEventManager.onRightClick.Subscribe(RightClick);
+        settingsEventManager.onHover.Subscribe(Hover);
+        settingsEventManager.onPressKeyboardArrows.Subscribe(PressKeyboardArrows);
+        settingsEventManager.onScroll.Subscribe(Scroll);
+    }
+    private void UnsubscribeInputControllerEvents()
+    {
+        if (currentControllerSettings == null)
+            return;
+
+        settingsEventManager.onLeftClick.Unsubscribe(LeftClick);
+        settingsEventManager.onRightClick.Unsubscribe(RightClick);
+        settingsEventManager.onHover.Unsubscribe(Hover);
+        settingsEventManager.onPressKeyboardArrows.Unsubscribe(PressKeyboardArrows);
+        settingsEventManager.onScroll.Unsubscribe(Scroll);
+    }
+
+
+    // Set hexmap data
+    public void SetHexmapData(HexmapData hexmapData)
+    {
+        hexmap.SetHexmapData(hexmapData);
+        playerCamera.SetMapPattern(hexmapData.mapPattern);
+    }
 
 
     // Clicks
-    protected void CheckLeftClick()
-    {
-        if (EventSystem.current.IsPointerOverGameObject())
-            return;
-
-        if (Input.GetMouseButtonDown(0))
-            LeftClick(Input.mousePosition);
-    }
     public void LeftClick(Vector3 mousePosition)
     {
-        eventManager.onLeftClick.OnEvent(mousePosition);
-    }
-
-    protected void CheckRightClick()
-    {
-        if (EventSystem.current.IsPointerOverGameObject())
-            return;
-        
-        if (Input.GetMouseButtonDown(1))
-            RightClick(Input.mousePosition);
+        Vector3 worldPosition = playerCamera.cameraObject.ScreenToWorldPoint(mousePosition);
+        Hex clickHex = hexmap.GetHexAtWorldPosition(worldPosition);
+        eventManager.onLeftClick.OnEvent(clickHex);
     }
     public void RightClick(Vector3 mousePosition)
     {
-        eventManager.onRightClick.OnEvent(mousePosition);
+        Vector3 worldPosition = playerCamera.cameraObject.ScreenToWorldPoint(mousePosition);
+        Hex clickHex = hexmap.GetHexAtWorldPosition(worldPosition);
+        eventManager.onRightClick.OnEvent(clickHex);
     }
 
 
     // Hover
-    protected void CheckHover()
-    {
-        if (EventSystem.current.IsPointerOverGameObject())
-            return;
-        
-        Hover(Input.mousePosition);
-    }
     public void Hover(Vector3 mousePosition)
     {
-        eventManager.onHover.OnEvent(mousePosition);
+        Vector3 worldPosition = playerCamera.cameraObject.ScreenToWorldPoint(mousePosition);
+        Hex hoverHex = hexmap.GetHexAtWorldPosition(worldPosition);
+        eventManager.onHover.OnEvent(hoverHex);
     }
 
 
-    // Keyboard
-    protected void CheckKeyboardArrows()
-    {
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveY = Input.GetAxisRaw("Vertical");
-        if (moveX != 0 || moveY != 0)
-        {
-            PressKeyboardArrows(moveX, moveY);
-        }
-    }
+    // Press keyboard arrows
     public void PressKeyboardArrows(float moveX, float moveY)
     {
-        eventManager.onPressKeyboardArrows.OnEvent(moveX, moveY);
-    }
-
-    protected void CheckKeyPress()
-    {
-
-    }
-    public void KeyPress(KeyCode key)
-    {
-        
+        playerCamera.MoveCamera(moveX, moveY);
     }
 
 
-    // Scroll
-    protected void CheckScroll()
-    {
-        if (EventSystem.current.IsPointerOverGameObject())
-            return;
-        
-        float moveZ = Input.GetAxis("Mouse ScrollWheel");
-        if (moveZ != 0)
-            Scroll(moveZ);
-    }
+    // Scroll mousewheel
     public void Scroll(float moveZ)
     {
-        eventManager.onScroll.OnEvent(moveZ);
+        playerCamera.ZoomCamera(moveZ);
     }
 
 
@@ -100,10 +128,6 @@ public class PlayerInputController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CheckLeftClick();
-        CheckRightClick();
-        CheckHover();
-        CheckKeyboardArrows();
-        CheckScroll();
+        currentControllerSettings.Update();
     }
 }

@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bfba7ab0d152154b8de180d693dbef2, type: 3}
+  m_Name: Test Player Start Resources
+  m_EditorClassIdentifier: 
+  resourceType1: 0
+  resourceAmount1: 1
+  resourceType2: 1
+  resourceAmount2: 1
+  resourceType3: 2
+  resourceAmount3: 1
+  resourceType4: 3
+  resourceAmount4: 1
+  resourceType5: 4
+  resourceAmount5: 1

@@ -127,7 +127,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             state.eventManager.SubscribeEndPhase(HandleEndStateEvent);
             Unit unit = Unit.CreateUnit(CardPaths.testUnit);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
             Hex hex = hexmapData.GetHexAtHexCoords(Vector3Int.zero);
             state.LeftClick(hex);
 
@@ -141,7 +141,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             state.eventManager.SubscribeEndPhase(HandleEndStateEvent);
             Unit unit = Unit.CreateUnit(CardPaths.testUnit);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
             unit.unitData.SetHasActions(false);
             Hex hex = hexmapData.GetHexAtHexCoords(Vector3Int.zero);
             state.LeftClick(hex);
@@ -174,7 +174,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             Vector3Int unitHexCoords = Vector3Int.zero;
             Hex unitHex = hexmapData.GetHexAtHexCoords(unitHexCoords);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
 
             Vector3Int targetHexCoords = new Vector3Int(1, -1, 0);
             Hex targetHex = hexmapData.GetHexAtHexCoords(targetHexCoords);
@@ -201,7 +201,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             Vector3Int unitHexCoords = Vector3Int.zero;
             Hex unitHex = hexmapData.GetHexAtHexCoords(unitHexCoords);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
 
             Vector3Int targetHexCoords = new Vector3Int(1, -1, 0);
             hexmapData.AddPiece(enemyUnit, targetHexCoords);
@@ -219,11 +219,8 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
         }
 
         [Test]
-        public void RightClick_AttackHex_AttackMoveTarget_SetsActionData()
+        public void Hover_AttackHex_AttackMoveTarget()
         {
-            state.eventManager.SubscribeCreatePieceActionData(HandleCreateActionDataEvent);
-            state.eventManager.SubscribePerformPieceActions(HandlePerformPieceActionsEvent);
-
             Unit unit = Unit.CreateUnit(CardPaths.testUnit);
             Unit enemyUnit = Unit.CreateUnit(CardPaths.testUnit);
             unit.unitData.playerId = 1;
@@ -232,7 +229,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             Vector3Int unitHexCoords = Vector3Int.zero;
             Hex unitHex = hexmapData.GetHexAtHexCoords(unitHexCoords);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
 
             Vector3Int attackMoveHexCoords = new Vector3Int(1, -1, 0);
             Hex attackMoveHex = hexmapData.GetHexAtHexCoords(attackMoveHexCoords);
@@ -241,26 +238,12 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             hexmapData.AddPiece(enemyUnit, targetHexCoords);
             Hex targetHex = hexmapData.GetHexAtHexCoords(targetHexCoords);
             state.StartState(new StateStartInfo(StateType.Action, unit));
-            state.RightClick(targetHex);
-
-            PieceActionData moveData = actionDataList[0];
-            PieceActionData attackData = actionDataList[1];
+            state.Hover(targetHex);
 
             // Event check
-            Assert.AreEqual(2, numCreateActionDataEvents);
-            Assert.AreEqual(2, actionDataList.Count);
-
-            // Move action check
-            Assert.AreEqual(unit, moveData.actionUnit);
-            Assert.AreEqual(PieceActionType.Move, moveData.actionType);
-            Assert.AreEqual(unitHex, moveData.startHex);
-            Assert.AreEqual(attackMoveHex, moveData.targetHex);
-
-            // Attack action check
-            Assert.AreEqual(PieceActionType.Attack, attackData.actionType);
-            Assert.AreEqual(attackMoveHex, attackData.startHex);
-            Assert.AreEqual(targetHex, attackData.targetHex);
-            Assert.AreEqual(enemyUnit, attackData.targetUnit);
+            Assert.AreEqual(2, state.movePath.Count);
+            Assert.AreEqual(unitHex, state.movePath[0]);
+            Assert.AreEqual(attackMoveHex, state.movePath[1]);
         }
 
         [Test]
@@ -273,7 +256,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             Vector3Int unitHexCoords = Vector3Int.zero;
             Hex unitHex = hexmapData.GetHexAtHexCoords(unitHexCoords);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
 
             Vector3Int targetHexCoords = new Vector3Int(1, -1, 0);
             Hex targetHex = hexmapData.GetHexAtHexCoords(targetHexCoords);
@@ -301,7 +284,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             Vector3Int unitHexCoords = Vector3Int.zero;
             Hex unitHex = hexmapData.GetHexAtHexCoords(unitHexCoords);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
 
             Vector3Int targetHexCoords = new Vector3Int(1, -1, 0);
             hexmapData.AddPiece(enemyUnit, targetHexCoords);
@@ -328,7 +311,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             Vector3Int unitHexCoords = Vector3Int.zero;
             Hex unitHex = hexmapData.GetHexAtHexCoords(unitHexCoords);
             hexmapData.AddPiece(unit, Vector3Int.zero);
-            itemManager.AddPiece(unit);
+            itemManager.pieceManager.AddPiece(unit);
 
             Vector3Int attackMoveHexCoords = new Vector3Int(1, -1, 0);
             Hex attackMoveHex = hexmapData.GetHexAtHexCoords(attackMoveHexCoords);
@@ -337,6 +320,7 @@ namespace PlayerTests.TurnPhaseTests.MapActionPhaseStateTests
             hexmapData.AddPiece(enemyUnit, targetHexCoords);
             Hex targetHex = hexmapData.GetHexAtHexCoords(targetHexCoords);
             state.StartState(new StateStartInfo(StateType.Action, unit));
+            state.Hover(targetHex);
             state.RightClick(targetHex);
 
             Assert.AreEqual(1, numPerformPieceActionEvents);

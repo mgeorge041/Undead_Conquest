@@ -23,8 +23,8 @@ namespace PlayerTests.TurnPhaseTests
         {
             // Set resources
             itemManager = new PlayerItemManager();
-            itemManager.resources.SetResource(ResourceType.Bone, 5);
-            itemManager.resources.SetResource(ResourceType.Stone, 5);
+            itemManager.resourceManager.SetResource(ResourceType.Bone, 5);
+            itemManager.resourceManager.SetResource(ResourceType.Stone, 5);
 
             // Create card in hand
             card = Card.CreateCard(CardPaths.testUnit);
@@ -39,7 +39,7 @@ namespace PlayerTests.TurnPhaseTests
             hexmapData = new HexmapData();
             building = Piece.CreatePiece<Building>(CardPaths.testBuilding);
             hexmapData.AddPiece(building, Vector3Int.zero);
-            itemManager.AddPiece(building);
+            itemManager.pieceManager.AddPiece(building);
 
             // Start phase
             phase = new PlayCardsPhase(itemManager);

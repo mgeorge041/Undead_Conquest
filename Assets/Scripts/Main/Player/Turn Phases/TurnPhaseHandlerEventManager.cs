@@ -8,8 +8,10 @@ public class TurnPhaseHandlerEventManager
     public void Clear() 
     {
         onSetNextPhase.Clear();
+        onSetCameraStartLocation.Clear();
     }
 
 
     public GameEvent<TurnPhaseType> onSetNextPhase { get; private set; } = new GameEvent<TurnPhaseType>();
+    public GameEvent onSetCameraStartLocation { get; private set; } = new GameEvent();
 }

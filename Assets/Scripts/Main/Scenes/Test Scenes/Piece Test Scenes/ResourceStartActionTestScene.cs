@@ -15,7 +15,7 @@ public class ResourceStartActionTestScene : MonoBehaviour
         player.Initialize();
         Building building = Building.CreateBuilding(CardPaths.testBuildingResourceStartAction);
         hexmap.hexmapData.AddPiece(building, Vector3Int.zero);
-        player.itemManager.AddPiece(building);
+        player.itemManager.pieceManager.AddPiece(building);
     }
 
 

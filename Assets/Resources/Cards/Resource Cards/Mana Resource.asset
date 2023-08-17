@@ -16,5 +16,9 @@ MonoBehaviour:
   cardName: Mana
   cardDesc: Mana used to cast spells.
   <cardType>k__BackingField: 1
-  resourceType: 2
-  resourceAmount: 1
+  resourceType1: 2
+  resourceAmount1: 1
+  resourceType2: 5
+  resourceAmount2: 0
+  resourceType3: 5
+  resourceAmount3: 0

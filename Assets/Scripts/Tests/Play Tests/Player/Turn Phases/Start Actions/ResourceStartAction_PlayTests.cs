@@ -36,8 +36,8 @@ namespace PieceTests.StartActionTests
             Piece piece = Piece.CreatePiece(CardPaths.testUnit);
             startAction.PerformStartAction(piece, itemManager);
             yield return new WaitForSeconds(2);
-            Assert.AreEqual(1, itemManager.resources.GetResource(ResourceType.Bone));
-            Assert.AreEqual(1, itemManager.resources.GetResource(ResourceType.Stone));
+            Assert.AreEqual(1, itemManager.resourceManager.GetResource(ResourceType.Bone));
+            Assert.AreEqual(1, itemManager.resourceManager.GetResource(ResourceType.Stone));
         }
     }
 }

@@ -34,6 +34,7 @@ public abstract class Piece : MonoBehaviour
     // Piece info
     public bool isBuilding => pieceType == PieceType.Building;
     public bool isUnit => pieceType == PieceType.Unit;
+    public Unit unit => isUnit ? (Unit)this : null;
 
     // Animation
     public virtual PieceAnimator pieceAnimator { get; protected set; }
@@ -160,5 +161,15 @@ public abstract class Piece : MonoBehaviour
         pieceData.AddStat(PieceStatType.CurrentHealth, -CalculateDamageTaken(damage));
         pieceAnimator.TakeDamage(pieceData.currentHealth, pieceData.health);
         eventManager.onChangeHealth.OnEvent(pieceData.currentHealth, pieceData.health);
+        if (pieceData.currentHealth <= 0)
+            Die();
+    }
+
+
+    // Die
+    public void Die()
+    {
+        eventManager.onDeath.OnEvent(this);
+        C.DestroyGameObject(gameObject);
     }
 }

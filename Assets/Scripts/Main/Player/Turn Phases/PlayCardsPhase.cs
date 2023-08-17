@@ -18,6 +18,7 @@ public class PlayCardsPhase : TurnPhase
     // Playable area outlines
     private Hex currentHoverHex;
     public LineRenderer hoverLine { get; private set; }
+    public LineRenderer pieceHoverLine { get; private set; }
     public List<LineRenderer> edgeLines { get; protected set; } = new List<LineRenderer>();
 
     // Event manager
@@ -38,15 +39,17 @@ public class PlayCardsPhase : TurnPhase
     public override void StartPhase()
     {
         Debug.Log("Starting play cards phase.");
-        CreateHoverLine();
+        CreateHoverLines();
         ClearPhase();
         SetPlayableHexes();
     }
     public override void ClearPhase()
     {
         selectedCard = null;
-        ClearHoverLine();
+        ShowHoverLine(false);
+        ShowPieceHoverLine(false);
         ClearPlayableHexes();
+        itemManager.hand.SetSelectedCard(null);
     }
 
 
@@ -54,9 +57,16 @@ public class PlayCardsPhase : TurnPhase
     public override void LeftClick(Hex clickHex)
     {
         if (clickHex == null || !clickHex.hasPiece)
-            itemManager.SetSelectedPiece(null);
+        {
+            itemManager.pieceManager.SetSelectedPiece(null);
+            ShowPieceHoverLine(false);
+        }
         else
-            itemManager.SetSelectedPiece(clickHex.piece);
+        {
+            itemManager.pieceManager.SetSelectedPiece(clickHex.piece);
+            SetPieceHoverLine(new List<Hex>() { clickHex });
+            ShowPieceHoverLine(true);
+        }
     }
 
     public override void RightClick(Hex clickHex)
@@ -95,7 +105,7 @@ public class PlayCardsPhase : TurnPhase
     // Set selected card
     public void SetSelectedCard(Card card)
     {
-        ClearHoverLine();
+        ShowHoverLine(false);
         ClearPlayableHexes();
         if (card == null || card == selectedCard) 
         {
@@ -113,21 +123,27 @@ public class PlayCardsPhase : TurnPhase
     }
 
     
-    // Create hover line for mouse position
-    private void CreateHoverLine()
+    // Create hover lines for mouse position and selecting pieces
+    private void CreateHoverLines()
     {
         // First time creation
         if (hoverLine == null)
             hoverLine = PathEdge.CreateEdgeLine(HexListType.Deploy);
+        if (pieceHoverLine == null)
+            pieceHoverLine = PathEdge.CreateEdgeLine(HexListType.Select);
 
-        ClearHoverLine();
+        ShowHoverLine(false);
     }
 
 
     // Hide hover line game object
-    private void ClearHoverLine()
+    private void ShowHoverLine(bool show)
     {
-        hoverLine.gameObject.SetActive(false);
+        hoverLine.gameObject.SetActive(show);
+    }
+    private void ShowPieceHoverLine(bool show)
+    {
+        pieceHoverLine.gameObject.SetActive(show);
     }
 
 
@@ -137,7 +153,7 @@ public class PlayCardsPhase : TurnPhase
         playableHexes.Clear();
 
         // Remove domain hexes with pieces
-        foreach (Hex domainHex in itemManager.domainHexes)
+        foreach (Hex domainHex in itemManager.pieceManager.domainHexes)
         {
             if (!domainHex.hasPiece)
                 playableHexes.Add(domainHex);
@@ -159,10 +175,10 @@ public class PlayCardsPhase : TurnPhase
     private void PlayPieceAtHex(Hex hex)
     {
         Piece piece = Piece.CreatePiece(selectedCard.playableCardInfo);
-        hex.SetPiece(piece);
+        hex.AddNewPiece(piece);
         piece.SetHexAndPosition(hex);
         itemManager.PlayCard(selectedCard);
-        itemManager.AddPiece(piece);
+        itemManager.pieceManager.AddPiece(piece);
         ClearPlayableHexes();
     }
 
@@ -204,6 +220,14 @@ public class PlayCardsPhase : TurnPhase
         {
             line.gameObject.SetActive(false);
         }
+    }
+
+
+    // Set selected piece hover line
+    private void SetPieceHoverLine(List<Hex> hex)
+    {
+        List<List<Vector3>> edgePoints = PathEdge.GetPathEdge(hex);
+        PathEdge.DisplayEdgeLine(pieceHoverLine, edgePoints[0]);
     }
 
 

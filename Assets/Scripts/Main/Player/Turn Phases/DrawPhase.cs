@@ -20,6 +20,14 @@ public class DrawPhase : TurnPhase
     public override void StartPhase()
     {
         Debug.Log("Starting draw phase.");
+        itemManager.eventManager.onFinishAnimatingDrawCards.Subscribe(EndPhase);
         itemManager.DrawCard();
+    }
+
+
+    // Clear phase
+    public override void ClearPhase()
+    {
+        itemManager.eventManager.onFinishAnimatingDrawCards.Unsubscribe(EndPhase);
     }
 }

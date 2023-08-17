@@ -11,6 +11,7 @@ public class Unit : Piece
     public UnitCardInfo unitCardInfo { get; protected set; }
     public override PieceData pieceData => unitData;
     public UnitData unitData = new UnitData();
+    public bool hasDomainBuff { get; private set; }
 
     // Animator
     public override PieceAnimator pieceAnimator => unitAnimator;
@@ -91,6 +92,7 @@ public class Unit : Piece
 
         unitAnimator.MoveUnit(movePath);
         unitEventManager.onChangeSpeed.OnEvent(unitData.currentSpeed, unitData.speed);
+        unitEventManager.onFinishMove.OnEvent(this);
     }
 
 
@@ -103,6 +105,27 @@ public class Unit : Piece
             movePath.Add(hex.pathNode.worldPosition);
         }
         return movePath;
+    }
+
+
+    // Set player domain buff
+    public void SetDomainBuff(bool inDomain)
+    {
+        if (inDomain == hasDomainBuff)
+            return;
+
+        if (inDomain)
+        {
+            unitData.AddStat(PieceStatType.Attack, 1);
+            unitData.AddStat(PieceStatType.Defense, 1);
+            hasDomainBuff = true;
+        }
+        else
+        {
+            unitData.AddStat(PieceStatType.Attack, -1);
+            unitData.AddStat(PieceStatType.Defense, -1);
+            hasDomainBuff = false;
+        }
     }
 
 

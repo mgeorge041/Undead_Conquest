@@ -11,6 +11,7 @@ public class PlayableCard : Card
     public virtual PlayableCardInfo playableCardInfo { get; protected set; }
 
     // Resource info
+    public Dictionary<ResourceType, int> resourceCosts = new Dictionary<ResourceType, int>();
     public ResourceType resourceType1 => playableCardInfo.resourceType1;
     public ResourceType resourceType2 => playableCardInfo.resourceType2;
     public ResourceType resourceType3 => playableCardInfo.resourceType3;
@@ -32,6 +33,14 @@ public class PlayableCard : Card
     {
         playableCardInfo = cardInfo;
         base.SetInfo(cardInfo);
+
+        // Set resource data
+        resourceCosts = new Dictionary<ResourceType, int>()
+        {
+            { resourceType1, resourceCost1 },
+            { resourceType2, resourceCost2 },
+            { resourceType3, resourceCost3 },
+        };
 
         // Set resource icons
         resource1Image.sprite = ResourceCard.LoadResourceSprite(resourceType1);

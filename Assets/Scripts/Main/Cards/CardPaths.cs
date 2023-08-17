@@ -9,6 +9,8 @@ public static class CardPaths
     // Test cards
     private const string testPath = cardsPath + "Test Cards/";
     public const string testBoneResource = testPath + "Test Bone Resource";
+    public const string testBoneStoneResource = testPath + "Test Bone Stone Resource";
+    public const string testBoneStoneWoodResource = testPath + "Test Bone Stone Wood Resource";
     public const string testUnit = testPath + "Test Unit";
     public const string testBuilding = testPath + "Test Building";
     public const string testBuildingResourceStartAction = testPath + "Test Building Resource Start Action";

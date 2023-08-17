@@ -15,12 +15,15 @@ public class ResourceCard : Card
     public Dictionary<ResourceType, int> resources { get; private set; } = new Dictionary<ResourceType, int>();
 
     // Card stats
-    public Image resource1Image;
-    public Image resource2Image;
-    public Image resource3Image;
-    public TextMeshProUGUI resource1ProvidedLabel;
-    public TextMeshProUGUI resource2ProvidedLabel;
-    public TextMeshProUGUI resource3ProvidedLabel;
+    public Transform resourceContainer1;
+    public Transform resourceContainer2;
+    public Transform resourceContainer3;
+    public Image resourceIcon1;
+    public Image resourceIcon2;
+    public Image resourceIcon3;
+    public TextMeshProUGUI resourceAmount1Label;
+    public TextMeshProUGUI resourceAmount2Label;
+    public TextMeshProUGUI resourceAmount3Label;
 
 
     // Load resource image
@@ -55,6 +58,11 @@ public class ResourceCard : Card
         card.SetInfo(resourceCardInfo);
         return card;
     }
+    public static ResourceCard CreateResourceCard(string cardPath)
+    {
+        ResourceCardInfo cardInfo = CardInfo.LoadCardInfo<ResourceCardInfo>(cardPath);
+        return CreateResourceCard(cardInfo);
+    }
 
 
     // Set card info
@@ -63,13 +71,28 @@ public class ResourceCard : Card
         resourceCardInfo = cardInfo;
         base.SetInfo(cardInfo);
 
+        void SetCardItem(ResourceType resource, int amount, Image icon, TextMeshProUGUI label, Transform container)
+        {
+            if (resource == ResourceType.None)
+            {
+                container.gameObject.SetActive(false);
+                return;
+            }
+
+            container.gameObject.SetActive(true);
+            icon.sprite = LoadResourceSprite(resource);
+            label.text = amount.ToString();
+        }
+
+        // Set data
         resources[resourceCardInfo.resourceType1] = resourceCardInfo.resourceAmount1;
         resources[resourceCardInfo.resourceType2] = resourceCardInfo.resourceAmount2;
         resources[resourceCardInfo.resourceType3] = resourceCardInfo.resourceAmount3;
 
-        resource1Image.sprite = LoadResourceSprite(resourceCardInfo.resourceType1);
-        resource2Image.sprite = LoadResourceSprite(resourceCardInfo.resourceType2);
-        resource3Image.sprite = LoadResourceSprite(resourceCardInfo.resourceType3);
+        // Set card items
+        SetCardItem(resourceCardInfo.resourceType1, resourceCardInfo.resourceAmount1, resourceIcon1, resourceAmount1Label, resourceContainer1);
+        SetCardItem(resourceCardInfo.resourceType2, resourceCardInfo.resourceAmount2, resourceIcon2, resourceAmount2Label, resourceContainer2);
+        SetCardItem(resourceCardInfo.resourceType3, resourceCardInfo.resourceAmount3, resourceIcon3, resourceAmount3Label, resourceContainer3);
     }
 
     

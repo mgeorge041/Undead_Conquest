@@ -98,7 +98,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraObject: {fileID: 3088489179158690618}
-  moveSpeed: 10
+  moveSpeed: 1
+  moveSpeedModifier: 100
   scale: 1
   minScale: 1
   maxScale: 3

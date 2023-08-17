@@ -25,8 +25,8 @@ public class MapActionTestScene : MonoBehaviour
         hexmapData = new HexmapData();
         hexmapData.AddPiece(unit, Vector3Int.zero);
         hexmapData.AddPiece(enemyUnit, new Vector3Int(1, -1, 0));
-        player.hexmap.SetHexmapData(hexmapData);
-        player.itemManager.AddPiece(unit);
+        player.inputController.SetHexmapData(hexmapData);
+        player.itemManager.pieceManager.AddPiece(unit);
     }
 
 

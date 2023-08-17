@@ -23,6 +23,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     // Playable
     public bool playable { get; protected set; }
 
+    // Mouse events
+    public bool isHover { get; protected set; }
+    public bool handHover { get; protected set; }
+
     // Event manager
     public CardEventManager eventManager { get; protected set; } = new CardEventManager();
 
@@ -87,13 +91,22 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IP
     }
 
 
+    // Set whether the card is hovered in the hand
+    public void SetHandHover(bool handHover)
+    {
+        this.handHover = handHover;
+    }
+
+
     // Hover
     public void OnPointerEnter(PointerEventData eventData)
-    {
+    { 
+        isHover = true; 
         eventManager.onStartHover.OnEvent(this);
     }
     public void OnPointerExit(PointerEventData eventData)
     {
+        isHover = false;
         eventManager.onEndHover.OnEvent(this);
     }
 

@@ -9,8 +9,12 @@ public class UnitEventManager : PieceEventManager
     {
         base.Clear();
         onChangeSpeed.Clear();
+        onFinishMove.Clear();
+        onFinishMoveAnimation.Clear();
     }
 
 
     public GameEvent<int, int> onChangeSpeed { get; private set; } = new GameEvent<int, int>();
+    public GameEvent<Unit> onFinishMove { get; private set; } = new GameEvent<Unit>();
+    public GameEvent<Unit> onFinishMoveAnimation { get; private set; } = new GameEvent<Unit>();
 }

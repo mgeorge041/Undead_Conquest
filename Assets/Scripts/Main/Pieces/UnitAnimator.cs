@@ -54,6 +54,14 @@ public class UnitAnimator : PieceAnimator
             }
             unit.transform.position = movePath[i];
         }
+        FinishMoveAnimation();
+    }
+
+
+    // Finish move
+    public void FinishMoveAnimation()
+    {
+        unit.unitEventManager.onFinishMoveAnimation.OnEvent(unit);
     }
 
 

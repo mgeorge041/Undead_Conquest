@@ -22,7 +22,7 @@ namespace PlayerTests.TurnPhaseTests
         {
             itemManager = new PlayerItemManager();
             playerUI = PlayerUI.CreatePlayerUI();
-            playerUI.SubscribePlayerItemEvents(itemManager);
+            playerUI.SetItemManagerInfo(itemManager);
 
             Card card = Card.CreateCard(CardPaths.testUnit);
             itemManager.deck.AddNewCardToDeck(card);

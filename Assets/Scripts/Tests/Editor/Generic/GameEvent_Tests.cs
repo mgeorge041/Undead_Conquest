@@ -48,5 +48,31 @@ namespace GenericTests
             Assert.AreEqual(1, gameEventInfo);
         }
 
+
+        // Test gets number of subscriptions
+        [Test]
+        public void GetsNumberOfSubscriptions_0()
+        {
+            int numSubscriptions = gameEvent.count;
+            Assert.AreEqual(0, numSubscriptions);
+        }
+
+        [Test]
+        public void GetsNumberOfSubscriptions_1()
+        {
+            gameEvent.Subscribe(HandleGameEvent);
+            int numSubscriptions = gameEvent.count;
+            Assert.AreEqual(1, numSubscriptions);
+        }
+
+        [Test]
+        public void GetsNumberOfSubscriptions_1Then0()
+        {
+            gameEvent.Subscribe(HandleGameEvent);
+            gameEvent.Unsubscribe(HandleGameEvent);
+            int numSubscriptions = gameEvent.count;
+            Assert.AreEqual(0, numSubscriptions);
+        }
+
     }
 }

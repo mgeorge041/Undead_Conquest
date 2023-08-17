@@ -23,6 +23,7 @@ public class PlayerUI : MonoBehaviour
     public Transform newCardContainer;
 
     // Draw card event handling
+    private PlayableCard selectedCard;
     private Queue<Tuple<Card, int, int, int>> drawCardQueue;
     private Queue<Tuple<Card, int, int>> addCardQueue;
 
@@ -45,26 +46,35 @@ public class PlayerUI : MonoBehaviour
         resourcePanel.Initialize();
         handPanel.Initialize();
         pieceInfoPanel.Initialize();
+        OutlineText.SetFontMaterial(phaseNameLabel);
         //selectedCardPanel.Initialize();
         //selectedCardPanel.eventManager.SubscribeClickShowHandButton(ShowHand);
         initialized = true;
     }
 
 
+    // Set item manager info
+    public void SetItemManagerInfo(PlayerItemManager itemManager)
+    {
+        SubscribePlayerItemEvents(itemManager);
+        resourcePanel.SetResources(itemManager.resourceManager.resources);
+    }
+
+
     // Subscribe to player item (cards and resources) events
-    public void SubscribePlayerItemEvents(PlayerItemManager itemManager)
+    private void SubscribePlayerItemEvents(PlayerItemManager itemManager)
     {
         itemManager.deck.eventManager.onAddCard.Subscribe(HandleDeckAddCard);
         itemManager.deck.eventManager.onChangeDeck.Subscribe(HandleChangeDeck);
         itemManager.deck.eventManager.onChangeDiscardPile.Subscribe(HandleDiscardPileEvents);
         //itemManager.hand.eventManager.SubscribeChangeHand(HandleHandEvents);
         itemManager.hand.eventManager.onChangeHand.Subscribe(HandleHandEvents);
-        itemManager.eventManager.onLeftClickCard.Subscribe(HandleLeftClickCardEvents);
+        itemManager.eventManager.onLeftClickCard.Subscribe(HandleLeftClickCard);
         itemManager.eventManager.onChangeResource.Subscribe(HandleResourceEvents);
         itemManager.eventManager.onFinishDrawingCards.Subscribe(HandleDrawCardEvents);
         itemManager.eventManager.onFinishAddingCards.Subscribe(HandleAddNewCardToDeck);
         itemManager.eventManager.onPlayCard.Subscribe(HandlePlayCard);
-        itemManager.eventManager.onSetSelectedPiece.Subscribe(HandleSetSelectedPiece);
+        itemManager.pieceManager.eventManager.onSetSelectedPiece.Subscribe(HandleSetSelectedPiece);
     }
 
 
@@ -103,10 +113,15 @@ public class PlayerUI : MonoBehaviour
     {
         handPanel.SetNumHandCards(numCards);
     }
-    private void HandleLeftClickCardEvents(PlayableCard card)
+    private void HandleLeftClickCard(PlayableCard card)
     {
+        if (card == selectedCard)
+            selectedCard = null;
+        else
+            selectedCard = card;
+        
         //bool hideHand = selectedCardPanel.SetSelectedCardInfo(card);
-        handPanel.OpenHand(false);
+        handPanel.OpenHand(selectedCard == null);
     }
 
 
@@ -213,7 +228,7 @@ public class PlayerUI : MonoBehaviour
 
 
     // Handle playing card
-    private void HandlePlayCard(PlayableCard card, PlayerResources resources)
+    private void HandlePlayCard(PlayableCard card, PlayerResourceManager resources)
     {
         // Check each resource amount
         handPanel.AddCardToDeck(card);
@@ -274,6 +289,7 @@ public class PlayerUI : MonoBehaviour
                 phaseNameLabel.text = "Enemy Turn";
                 break;
         }
+        StartCoroutine(OutlineText.ShowHighlightDuration(phaseNameLabel.fontMaterial, 1));
     }
 
 

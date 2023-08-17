@@ -12,6 +12,8 @@ namespace PieceTests
         private int numChangeHealthEvents;
         private int changeHealthEvent_CurrentHealth;
         private int changeHealthEvent_Health;
+        private int numDeathEvents;
+        private Piece deathPiece;
 
 
         // Setup
@@ -22,7 +24,9 @@ namespace PieceTests
 
             numChangeHealthEvents = 0;
             changeHealthEvent_CurrentHealth = 0;
-            changeHealthEvent_Health = 0;
+            changeHealthEvent_Health = 0; 
+            numDeathEvents = 0;
+            deathPiece = null;
         }
 
 
@@ -74,6 +78,25 @@ namespace PieceTests
             Assert.AreEqual(1, numChangeHealthEvents);
             Assert.AreEqual(9, changeHealthEvent_CurrentHealth);
             Assert.AreEqual(10, changeHealthEvent_Health);
+        }
+
+
+        // Test death
+        private void HandlesBuildingDeath(Piece piece)
+        {
+            numDeathEvents++;
+            deathPiece = piece;
+        }
+
+        [Test]
+        public void Dies()
+        {
+            building.eventManager.onDeath.Subscribe(HandlesBuildingDeath);
+            building.Die();
+
+            Assert.AreEqual(1, numDeathEvents);
+            Assert.AreEqual(building, deathPiece);
+            Assert.IsTrue(building == null);
         }
     }
 }

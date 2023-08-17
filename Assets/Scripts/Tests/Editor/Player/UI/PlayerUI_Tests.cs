@@ -35,5 +35,22 @@ namespace PlayerTests.PlayerUITests
             Assert.IsTrue(ui.handPanel.initialized);
             Assert.IsTrue(ui.initialized);
         }
+
+
+        // Test sets initial resources
+        [Test]
+        public void SetsInitialResources()
+        {
+            PlayerItemManager itemManager = new PlayerItemManager();
+            PlayerStartResources startResources = PlayerStartResources.LoadStartResources(StartResourcePaths.testStartResources);
+            itemManager.resourceManager.AddResources(startResources.resources);
+            ui.SetItemManagerInfo(itemManager);
+
+            Assert.AreEqual(1, ui.resourcePanel.GetResource(ResourceType.Bone));
+            Assert.AreEqual(1, ui.resourcePanel.GetResource(ResourceType.Corpse));
+            Assert.AreEqual(1, ui.resourcePanel.GetResource(ResourceType.Mana));
+            Assert.AreEqual(1, ui.resourcePanel.GetResource(ResourceType.Stone));
+            Assert.AreEqual(1, ui.resourcePanel.GetResource(ResourceType.Wood));
+        }
     }
 }

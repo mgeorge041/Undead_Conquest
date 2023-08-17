@@ -10,6 +10,9 @@ namespace HexmapTests
     {
         private Hex hex;
         private int numAddPieceEvents;
+        private int numSetPieceEvents;
+        private Piece addPiece;
+        private Piece setPiece;
 
 
         // Setup
@@ -18,6 +21,9 @@ namespace HexmapTests
         {
             hex = new Hex();
             numAddPieceEvents = 0;
+            numSetPieceEvents = 0;
+            addPiece = null;
+            setPiece = null;
         }
 
 
@@ -40,20 +46,59 @@ namespace HexmapTests
         }
 
 
-        // Test adding piece
-        private void HandleAddPieceEvent(Piece piece)
+        // Test adding and setting piece
+        [Test]
+        public void SetsPiece()
         {
-            numAddPieceEvents++;
+            Unit unit = Unit.CreateUnit(CardPaths.testUnit);
+            hex.SetPiece(unit);
+            Assert.AreEqual(unit, hex.unit);
         }
 
         [Test]
-        public void FiresEvent_AddPiece()
+        public void AddsNewPiece()
         {
-            hex.eventManager.onAddPiece.Subscribe(HandleAddPieceEvent);
-            Piece piece = Piece.CreatePiece(CardPaths.testUnit);
-            hex.AddPiece(piece);
-            Assert.AreEqual(1, numAddPieceEvents);
-            Assert.AreEqual(piece, hex.piece);
+            Unit unit = Unit.CreateUnit(CardPaths.testUnit);
+            hex.AddNewPiece(unit);
+            Assert.AreEqual(unit, hex.unit);
         }
+
+
+        // Test adding piece
+        private void HandleAddNewPieceEvent(Piece piece)
+        {
+            numAddPieceEvents++;
+            addPiece = piece;
+        }
+        private void HandleSetPieceEvent(Piece piece)
+        {
+            numSetPieceEvents++;
+            setPiece = piece;
+        }
+
+        [Test]
+        public void FiresEvent_SetPiece()
+        {
+            hex.eventManager.onAddPiece.Subscribe(HandleSetPieceEvent);
+            Piece piece = Piece.CreatePiece(CardPaths.testUnit);
+            hex.AddNewPiece(piece);
+            Assert.AreEqual(1, numSetPieceEvents);
+            Assert.AreEqual(piece, setPiece);
+        }
+
+        [Test]
+        public void FiresEvent_AddNewPiece()
+        {
+            hex.eventManager.onAddPiece.Subscribe(HandleSetPieceEvent);
+            hex.eventManager.onAddPiece.Subscribe(HandleAddNewPieceEvent);
+            Piece piece = Piece.CreatePiece(CardPaths.testUnit);
+            hex.AddNewPiece(piece);
+            Assert.AreEqual(1, numAddPieceEvents);
+            Assert.AreEqual(piece, addPiece);
+            Assert.AreEqual(1, numSetPieceEvents);
+            Assert.AreEqual(piece, setPiece);
+        }
+
+        
     }
 }

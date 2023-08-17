@@ -6,8 +6,8 @@ public class PlayerCamera : MonoBehaviour
 {
     public Camera cameraObject;
 
-
-    public float moveSpeed = 10f;
+    public int moveSpeed = 1;
+    public float moveSpeedModifier = 100;
     [SerializeField] private int scale = 1;
     public int minScale = 1;
     public int maxScale = 3;
@@ -153,7 +153,14 @@ public class PlayerCamera : MonoBehaviour
 
 
     // Move camera
-    public void MoveCamera(Vector3 position, bool ignoreBounds = false)
+    public void MoveCamera(float moveX, float moveY)
+    {
+        moveX *= moveSpeed / moveSpeedModifier;
+        moveY *= moveSpeed / moveSpeedModifier;
+        Vector3 newPosition = new Vector3(transform.position.x + moveX, transform.position.y + moveY);
+        SetPosition(newPosition);
+    }
+    public void SetPosition(Vector3 position, bool ignoreBounds = false)
     {
         if (!ignoreBounds)
             cameraObject.transform.position = new Vector3(
@@ -167,7 +174,7 @@ public class PlayerCamera : MonoBehaviour
     }
     private void CenterCameraOnPiece(Piece piece, bool ignoreBounds)
     {
-        MoveCamera(piece.transform.position, ignoreBounds);
+        SetPosition(piece.transform.position, ignoreBounds);
     }
 
 
@@ -213,7 +220,7 @@ public class PlayerCamera : MonoBehaviour
             maxXPos += xOffset;
         }
         cameraBounds.SetBounds(minXPos, maxXPos, minYPos, maxYPos);
-        MoveCamera(cameraObject.transform.position);
+        SetPosition(cameraObject.transform.position);
     }
 
 
